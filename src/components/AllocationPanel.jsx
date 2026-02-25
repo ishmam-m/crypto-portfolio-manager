@@ -1,6 +1,8 @@
+import { surfacePanelClass } from '../lib/uiTheme'
+
 function AllocationPanel({ allocations, money }) {
   return (
-    <section className="rounded-2xl border border-slate-800 bg-slate-900/75 p-5">
+    <section className={`${surfacePanelClass} p-5`}>
       <h2 className="text-lg font-medium text-white">Allocation</h2>
 
       <div className="mt-4 space-y-4">
@@ -13,7 +15,7 @@ function AllocationPanel({ allocations, money }) {
 
             <div className="h-2 rounded-full bg-slate-800">
               <div
-                className="h-2 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500"
+                className="h-2 rounded-full bg-linear-to-r from-cyan-400 to-blue-500"
                 style={{ width: `${Math.max(holding.percentage, 2)}%` }}
               />
             </div>
