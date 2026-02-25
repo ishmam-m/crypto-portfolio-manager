@@ -1,4 +1,9 @@
-import {useEffect, useMemo, useState} from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import AddTradeModal from './components/AddTradeModal'
+import AllocationPanel from './components/AllocationPanel'
+import DashboardHeader from './components/DashboardHeader'
+import PortfolioStats from './components/PortfolioStats'
+import RecentTradesPanel from './components/RecentTradesPanel'
 
 const TRADES_STORAGE_KEY = 'trades'
 const HOLDINGS_STORAGE_KEY = 'holdings'
@@ -123,14 +128,12 @@ function loadTrades() {
   try {
     const stored = localStorage.getItem(TRADES_STORAGE_KEY)
 
-    if (!stored) return TRADES
+    if (!stored) {
+      return TRADES
+    }
 
-    const normalized = JSON.parse(stored)
-        .map(normalizeTrade)
-        .filter(Boolean)
-
+    const normalized = JSON.parse(stored).map(normalizeTrade).filter(Boolean)
     return normalized.length ? normalized : TRADES
-
   } catch {
     return TRADES
   }
@@ -140,13 +143,12 @@ function loadHoldings() {
   try {
     const stored = localStorage.getItem(HOLDINGS_STORAGE_KEY)
 
-    if (!stored) return HOLDINGS
+    if (!stored) {
+      return HOLDINGS
+    }
 
-    const normalized = JSON.parse(stored)
-        .map(normalizeHolding)
-        .filter(Boolean)
+    const normalized = JSON.parse(stored).map(normalizeHolding).filter(Boolean)
     return normalized.length ? normalized : HOLDINGS
-
   } catch {
     return HOLDINGS
   }
@@ -154,11 +156,10 @@ function loadHoldings() {
 
 function applyTradeToHoldings(currentHoldings, trade) {
   const holdings = [...currentHoldings]
-  const idx = holdings.findIndex((h) => h.asset === trade.asset)
-  const isBuy = trade.order === 'Buy'
+  const holdingIndex = holdings.findIndex((holding) => holding.asset === trade.asset)
 
-  if (isBuy) {
-    if (idx === -1) {
+  if (trade.order === 'Buy') {
+    if (holdingIndex === -1) {
       return [
         ...holdings,
         {
@@ -170,12 +171,12 @@ function applyTradeToHoldings(currentHoldings, trade) {
       ]
     }
 
-    const existing = holdings[idx]
+    const existing = holdings[holdingIndex]
     const nextAmount = existing.amount + trade.amount
     const nextAvgCost =
-        (existing.amount * existing.avgCost + trade.amount * trade.price) / nextAmount
+      (existing.amount * existing.avgCost + trade.amount * trade.price) / nextAmount
 
-    holdings[idx] = {
+    holdings[holdingIndex] = {
       ...existing,
       amount: nextAmount,
       avgCost: nextAvgCost,
@@ -185,17 +186,18 @@ function applyTradeToHoldings(currentHoldings, trade) {
     return holdings
   }
 
-  // SELL
-  if (idx === -1) return holdings
+  if (holdingIndex === -1) {
+    return holdings
+  }
 
-  const existing = holdings[idx]
+  const existing = holdings[holdingIndex]
   const nextAmount = Math.max(existing.amount - trade.amount, 0)
 
   if (nextAmount === 0) {
-    return holdings.filter((h) => h.asset !== trade.asset)
+    return holdings.filter((holding) => holding.asset !== trade.asset)
   }
 
-  holdings[idx] = {
+  holdings[holdingIndex] = {
     ...existing,
     amount: nextAmount,
     currentPrice: trade.price,
@@ -212,12 +214,12 @@ function App() {
 
   const portfolioStats = useMemo(() => {
     const { value, costBasis } = holdings.reduce(
-        (acc, holding) => {
-          acc.value += holding.amount * holding.currentPrice
-          acc.costBasis += holding.amount * holding.avgCost
-          return acc
-        },
-        { value: 0, costBasis: 0 }
+      (accumulator, holding) => {
+        accumulator.value += holding.amount * holding.currentPrice
+        accumulator.costBasis += holding.amount * holding.avgCost
+        return accumulator
+      },
+      { value: 0, costBasis: 0 },
     )
 
     const pnl = value - costBasis
@@ -227,18 +229,23 @@ function App() {
   }, [holdings])
 
   const allocations = useMemo(() => {
-    const totalValue = holdings.reduce((total, holding) => total + holding.amount * holding.currentPrice, 0)
+    const totalValue = holdings.reduce(
+      (total, holding) => total + holding.amount * holding.currentPrice,
+      0,
+    )
 
-    return holdings.map((holding) => {
-      const value = holding.amount * holding.currentPrice
-      const percentage = totalValue > 0 ? (value / totalValue) * 100 : 0
+    return holdings
+      .map((holding) => {
+        const value = holding.amount * holding.currentPrice
+        const percentage = totalValue > 0 ? (value / totalValue) * 100 : 0
 
-      return {
-        ...holding,
-        value,
-        percentage,
-      }
-    }).sort((a, b) => b.value - a.value)
+        return {
+          ...holding,
+          value,
+          percentage,
+        }
+      })
+      .sort((a, b) => b.value - a.value)
   }, [holdings])
 
   useEffect(() => {
@@ -248,7 +255,6 @@ function App() {
   useEffect(() => {
     localStorage.setItem(HOLDINGS_STORAGE_KEY, JSON.stringify(holdings))
   }, [holdings])
-
 
   function openTradeModal() {
     setFormData(INITIAL_FORM)
@@ -305,190 +311,37 @@ function App() {
   return (
     <main className="min-h-screen px-4 py-8 text-slate-100">
       <section className="mx-auto w-full max-w-6xl rounded-3xl border border-slate-800/80 bg-slate-950/70 p-6 shadow-2xl backdrop-blur-sm">
-        <header className="mb-6 flex flex-col gap-3 border-b border-slate-800 pb-5 md:flex-row md:items-end md:justify-between">
-          <div>
-            <p className="text-xs uppercase tracking-[0.24em] text-cyan-300/80">Crypto Portfolio</p>
-            <h1 className="mt-2 text-3xl font-semibold text-white md:text-4xl">Dashboard</h1>
-          </div>
-        </header>
+        <DashboardHeader />
 
         <div className="grid gap-6 lg:grid-cols-[1.35fr_1fr]">
           <section className="space-y-6">
-            <div className="grid gap-4 sm:grid-cols-3">
-              <article className="rounded-2xl border border-slate-800 bg-slate-900/75 p-4">
-                <p className="text-xs uppercase tracking-widest text-slate-400">Portfolio Value</p>
-                <p className="mt-2 text-2xl font-semibold text-white">{compactMoney.format(portfolioStats.value)}</p>
-              </article>
-              <article className="rounded-2xl border border-slate-800 bg-slate-900/75 p-4">
-                <p className="text-xs uppercase tracking-widest text-slate-400">Cost Basis</p>
-                <p className="mt-2 text-2xl font-semibold text-white">{compactMoney.format(portfolioStats.costBasis)}</p>
-              </article>
-              <article className="rounded-2xl border border-slate-800 bg-slate-900/75 p-4">
-                <p className="text-xs uppercase tracking-widest text-slate-400">Net P/L</p>
-                <p className={`mt-2 text-2xl font-semibold ${portfolioStats.pnl >= 0 ? 'text-emerald-300' : 'text-rose-300'}`}>
-                  {money.format(portfolioStats.pnl)}
-                </p>
-                <p className={`mt-1 text-sm ${portfolioStats.pnl >= 0 ? 'text-emerald-200' : 'text-rose-200'}`}>
-                  {portfolioStats.pnlPercent >= 0 ? '+' : ''}
-                  {portfolioStats.pnlPercent.toFixed(2)}%
-                </p>
-              </article>
-            </div>
+            <PortfolioStats
+              portfolioStats={portfolioStats}
+              compactMoney={compactMoney}
+              money={money}
+            />
 
-            <section className="rounded-2xl border border-slate-800 bg-slate-900/75 p-5">
-              <h2 className="text-lg font-medium text-white">Allocation</h2>
-              <div className="mt-4 space-y-4">
-                {allocations.slice(0, 4).map((holding) => (
-                  <article key={holding.asset}>
-                    <div className="mb-1 flex items-center justify-between text-sm text-slate-300">
-                      <span>{holding.asset}</span>
-                      <span>{holding.percentage.toFixed(1)}%</span>
-                    </div>
-                    <div className="h-2 rounded-full bg-slate-800">
-                      <div
-                        className="h-2 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500"
-                        style={{ width: `${Math.max(holding.percentage, 2)}%` }}
-                      />
-                    </div>
-                    <p className="mt-1 text-xs text-slate-400">{money.format(holding.value)}</p>
-                  </article>
-                ))}
-              </div>
-            </section>
+            <AllocationPanel allocations={allocations} money={money} />
           </section>
 
-          <aside className="rounded-2xl border border-slate-800 bg-slate-900/75 p-5">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-medium text-white">Trades</h2>
-              <span className="text-xs tracking-wider text-slate-400">RECENT</span>
-            </div>
-
-            <div className="space-y-3">
-              {trades.slice(0, 5).map((trade) => (
-                <article key={trade.id} className="rounded-xl border border-slate-800 bg-slate-950/60 p-3">
-                  <p className="text-sm font-medium text-slate-100">{renderTradeLine(trade)}</p>
-                  <div className="mt-1 flex items-center justify-between text-xs text-slate-400">
-                    <span>{trade.tag ?? TAG_OPTIONS[0]}</span>
-                    <span>{formatTradeTimestamp(trade.createdAt)}</span>
-                  </div>
-                </article>
-              ))}
-            </div>
-
-            <button
-              type="button"
-              onClick={openTradeModal}
-              className="mt-4 w-full rounded-xl bg-cyan-500 px-4 py-2.5 text-sm font-medium text-slate-950 transition hover:bg-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:ring-offset-2 focus:ring-offset-slate-900"
-            >
-              Add Trade
-            </button>
-          </aside>
+          <RecentTradesPanel
+            trades={trades}
+            defaultTag={TAG_OPTIONS[0]}
+            onOpenTradeModal={openTradeModal}
+            renderTradeLine={renderTradeLine}
+            formatTradeTimestamp={formatTradeTimestamp}
+          />
         </div>
       </section>
 
-      {isModalOpen ? (
-        <div
-          className="fixed inset-0 z-50 grid place-items-center bg-slate-950/70 p-4 backdrop-blur-sm"
-          role="presentation"
-          onClick={closeTradeModal}
-        >
-          <section
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="add-trade-title"
-            className="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-2xl"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <h2 id="add-trade-title" className="text-center text-2xl font-semibold text-white">
-              Add Trade
-            </h2>
-
-            <form className="mt-6 space-y-4" onSubmit={handleAddTrade}>
-              <label className="block space-y-1.5">
-                <span className="text-sm text-slate-300">Asset</span>
-                <input
-                  name="asset"
-                  type="text"
-                  value={formData.asset}
-                  onChange={onInputChange}
-                  className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100 outline-none ring-cyan-300 transition focus:ring-2"
-                  required
-                />
-              </label>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <label className="block space-y-1.5">
-                  <span className="text-sm text-slate-300">Amount</span>
-                  <input
-                    name="amount"
-                    type="number"
-                    step="any"
-                    min="0"
-                    value={formData.amount}
-                    onChange={onInputChange}
-                    className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100 outline-none ring-cyan-300 transition focus:ring-2"
-                    required
-                  />
-                </label>
-
-                <label className="block space-y-1.5">
-                  <span className="text-sm text-slate-300">Price</span>
-                  <input
-                    name="price"
-                    type="number"
-                    step="any"
-                    min="0"
-                    value={formData.price}
-                    onChange={onInputChange}
-                    className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100 outline-none ring-cyan-300 transition focus:ring-2"
-                    required
-                  />
-                </label>
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <label className="block space-y-1.5">
-                  <span className="text-sm text-slate-300">Order</span>
-                  <select
-                    name="order"
-                    value={formData.order}
-                    onChange={onInputChange}
-                    className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100 outline-none ring-cyan-300 transition focus:ring-2"
-                  >
-                    <option value="Buy">Buy</option>
-                    <option value="Sell">Sell</option>
-                  </select>
-                </label>
-
-                <label className="block space-y-1.5">
-                  <span className="text-sm text-slate-300">Tag</span>
-                  <select
-                    name="tag"
-                    value={formData.tag}
-                    onChange={onInputChange}
-                    className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100 outline-none ring-cyan-300 transition focus:ring-2"
-                  >
-                    {TAG_OPTIONS.map((tag) => (
-                      <option key={tag} value={tag}>
-                        {tag}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              </div>
-
-              <div className="pt-2">
-                <button
-                  type="submit"
-                  className="w-full rounded-lg bg-cyan-500 px-4 py-2.5 font-medium text-slate-950 transition hover:bg-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:ring-offset-2 focus:ring-offset-slate-900"
-                >
-                  Confirm Trade
-                </button>
-              </div>
-            </form>
-          </section>
-        </div>
-      ) : null}
+      <AddTradeModal
+        isOpen={isModalOpen}
+        formData={formData}
+        tagOptions={TAG_OPTIONS}
+        onClose={closeTradeModal}
+        onInputChange={onInputChange}
+        onSubmit={handleAddTrade}
+      />
     </main>
   )
 }
