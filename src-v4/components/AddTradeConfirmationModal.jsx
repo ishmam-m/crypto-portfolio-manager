@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { primaryButtonClass } from '../lib/uiTheme'
 
@@ -9,6 +10,27 @@ function AddTradeConfirmationModal({
   formatTradeTimestamp,
   onClose,
 }) {
+  useEffect(() => {
+    if (!trade) {
+      return undefined
+    }
+
+    function handleKeydown(event) {
+      if (event.key === 'Escape') {
+        onClose()
+      }
+    }
+
+    window.addEventListener('keydown', handleKeydown)
+    return () => window.removeEventListener('keydown', handleKeydown)
+  }, [trade, onClose])
+
+  function handleBackdropMouseDown(event) {
+    if (event.target === event.currentTarget) {
+      onClose()
+    }
+  }
+
   if (!trade) {
     return null
   }
@@ -20,6 +42,7 @@ function AddTradeConfirmationModal({
     <div
       className="fixed inset-0 z-50 grid place-items-center bg-slate-950/70 p-4 backdrop-blur-sm"
       role="presentation"
+      onMouseDown={handleBackdropMouseDown}
     >
       <section
         role="dialog"

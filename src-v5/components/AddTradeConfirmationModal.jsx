@@ -1,15 +1,14 @@
 import { useEffect } from 'react'
 import { createPortal } from 'react-dom'
-import { dangerButtonClass, secondaryButtonClass } from '../lib/uiTheme'
+import { primaryButtonClass } from '../lib/uiTheme'
 
-function DeleteTradeModal({
+function AddTradeConfirmationModal({
   trade,
   defaultTag,
   money,
   renderTradeLine,
   formatTradeTimestamp,
-  onCancel,
-  onConfirm,
+  onClose,
 }) {
   useEffect(() => {
     if (!trade) {
@@ -18,17 +17,17 @@ function DeleteTradeModal({
 
     function handleKeydown(event) {
       if (event.key === 'Escape') {
-        onCancel()
+        onClose()
       }
     }
 
     window.addEventListener('keydown', handleKeydown)
     return () => window.removeEventListener('keydown', handleKeydown)
-  }, [trade, onCancel])
+  }, [trade, onClose])
 
   function handleBackdropMouseDown(event) {
     if (event.target === event.currentTarget) {
-      onCancel()
+      onClose()
     }
   }
 
@@ -48,39 +47,32 @@ function DeleteTradeModal({
       <section
         role="dialog"
         aria-modal="true"
-        aria-labelledby="delete-trade-title"
-        className="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-2xl"
+        aria-labelledby="trade-added-title"
+        className="w-full max-w-md rounded-2xl bg-slate-900 p-6 shadow-2xl ring-1 ring-white/12"
       >
-        <h2 id="delete-trade-title" className="text-xl font-semibold text-white">
-          Delete Trade?
+        <h2 id="trade-added-title" className="text-xl font-semibold text-white">
+          Trade Added
         </h2>
         <p className="mt-2 text-sm text-slate-300">
-          This trade will be permanently removed and portfolio stats will be recalculated.
+          Your trade was saved successfully and portfolio stats were updated.
         </p>
 
-        <article className="mt-4 rounded-xl border border-slate-800 bg-slate-950/60 p-4">
+        <article className="mt-4 rounded-xl bg-slate-950/60 p-4">
           <p className="text-sm font-medium text-slate-100">{renderTradeLine(trade)}</p>
-          <div className="mt-2 space-y-1 text-xs text-slate-400">
+          <div className="mt-2 space-y-1 text-xs text-slate-300">
             <p>Tag: {trade.tag ?? defaultTag}</p>
             <p>Date: {formatTradeTimestamp(trade.createdAt)}</p>
             <p>Value: {tradeValue === null ? '-' : money.format(tradeValue)}</p>
           </div>
         </article>
 
-        <div className="mt-5 flex items-center justify-end gap-2">
+        <div className="mt-5 flex items-center justify-end">
           <button
             type="button"
-            onClick={onCancel}
-            className={`${secondaryButtonClass} px-3 py-2 text-sm font-medium`}
+            onClick={onClose}
+            className={`${primaryButtonClass} px-4 py-2.5 text-sm`}
           >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={onConfirm}
-            className={`${dangerButtonClass} px-3 py-2 text-sm`}
-          >
-            Delete Trade
+            Done
           </button>
         </div>
       </section>
@@ -89,4 +81,4 @@ function DeleteTradeModal({
   )
 }
 
-export default DeleteTradeModal
+export default AddTradeConfirmationModal

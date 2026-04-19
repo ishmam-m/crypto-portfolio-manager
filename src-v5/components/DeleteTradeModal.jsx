@@ -49,7 +49,7 @@ function DeleteTradeModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="delete-trade-title"
-        className="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-2xl"
+        className="w-full max-w-md rounded-2xl bg-slate-900 p-6 shadow-2xl ring-1 ring-white/12"
       >
         <h2 id="delete-trade-title" className="text-xl font-semibold text-white">
           Delete Trade?
@@ -58,9 +58,9 @@ function DeleteTradeModal({
           This trade will be permanently removed and portfolio stats will be recalculated.
         </p>
 
-        <article className="mt-4 rounded-xl border border-slate-800 bg-slate-950/60 p-4">
+        <article className="mt-4 rounded-xl bg-slate-950/60 p-4">
           <p className="text-sm font-medium text-slate-100">{renderTradeLine(trade)}</p>
-          <div className="mt-2 space-y-1 text-xs text-slate-400">
+          <div className="mt-2 space-y-1 text-xs text-slate-300">
             <p>Tag: {trade.tag ?? defaultTag}</p>
             <p>Date: {formatTradeTimestamp(trade.createdAt)}</p>
             <p>Value: {tradeValue === null ? '-' : money.format(tradeValue)}</p>

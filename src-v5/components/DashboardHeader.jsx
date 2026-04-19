@@ -21,11 +21,11 @@ const ROUTE_METADATA = {
 
 function navLinkClassName(isActive) {
   return [
-    'rounded-lg border px-3 py-1.5 text-sm font-medium transition',
+    'rounded-lg px-4 py-2 text-sm font-medium transition',
     cyanFocusRingClass,
     isActive
-      ? 'border-cyan-400/70 bg-cyan-500/15 text-cyan-100'
-      : 'border-slate-700 text-slate-200 hover:border-slate-500 hover:text-white',
+      ? 'bg-cyan-400 text-slate-950 font-semibold shadow-[0_8px_20px_rgba(34,211,238,0.35)]'
+      : 'text-slate-200 hover:bg-slate-800/90 hover:text-white',
   ].join(' ')
 }
 
@@ -34,15 +34,15 @@ function DashboardHeader() {
   const currentRoute = ROUTE_METADATA[location.pathname] ?? ROUTE_METADATA['/']
 
   return (
-    <header className="mb-6 border-b border-slate-800 pb-5">
-      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+    <header className="mb-8">
+      <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
         <div>
-          <p className="text-[11px] uppercase tracking-[0.2em] text-slate-400">{currentRoute.breadcrumb}</p>
-          <h1 className="mt-2 text-3xl font-semibold text-white md:text-4xl">{currentRoute.title}</h1>
-          <p className="mt-2 text-sm text-slate-300">{currentRoute.subtitle}</p>
+          <p className="text-[11px] uppercase tracking-[0.2em] text-slate-300">{currentRoute.breadcrumb}</p>
+          <h1 className="mt-3 text-4xl font-bold tracking-tight text-white md:text-5xl">{currentRoute.title}</h1>
+          <p className="mt-3 max-w-2xl text-sm text-slate-200">{currentRoute.subtitle}</p>
         </div>
 
-        <nav aria-label="Global" className="flex flex-wrap gap-2">
+        <nav aria-label="Global" className="inline-flex flex-wrap gap-1.5 rounded-xl bg-slate-950/70 p-1.5 ring-1 ring-white/10">
           <NavLink to="/" end className={({ isActive }) => navLinkClassName(isActive)}>
             Dashboard
           </NavLink>
@@ -55,7 +55,7 @@ function DashboardHeader() {
         </nav>
       </div>
 
-      <p className="mt-4 text-xs uppercase tracking-[0.24em] text-cyan-300/80">
+      <p className="mt-5 text-xs uppercase tracking-[0.24em] text-cyan-200">
         Crypto Portfolio
       </p>
     </header>

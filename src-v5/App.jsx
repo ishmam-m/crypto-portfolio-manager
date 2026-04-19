@@ -53,14 +53,15 @@ function App() {
   }
 
   return (
-    <main className="min-h-screen px-4 py-8 text-slate-100">
+    <main className="min-h-screen px-4 py-10 text-slate-100">
       <section
           className="
             mx-auto w-full max-w-480
             px-4 sm:px-6 lg:px-10
-            rounded-3xl border border-slate-800/80
-            bg-slate-950/70
+            rounded-3xl
+            bg-slate-950/60
             p-6 lg:p-8
+            ring-1 ring-white/10
             shadow-2xl backdrop-blur-sm
           "
       >
@@ -70,8 +71,8 @@ function App() {
           <Route
             path="/"
             element={
-              <div className="grid gap-6 lg:grid-cols-[1.35fr_1fr]">
-                <section className="space-y-6">
+              <div className="grid gap-8 lg:grid-cols-[1.35fr_1fr]">
+                <section className="space-y-7">
                   <PortfolioStats
                     portfolioStats={portfolioStats}
                     compactMoney={compactMoney}

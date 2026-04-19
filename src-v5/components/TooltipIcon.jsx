@@ -30,14 +30,14 @@ function TooltipIcon({ text, label, className = '', focusable = true }) {
         onFocus={openTooltip}
         onBlur={closeTooltip}
         onClick={toggleTooltip}
-        className={`inline-flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border border-slate-500 text-xs font-semibold text-slate-300 transition hover:border-slate-300 hover:text-white ${cyanFocusRingClass} ${className}`}
+        className={`inline-flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-slate-800/80 text-xs font-semibold text-slate-100 ring-1 ring-white/18 transition hover:bg-slate-700/90 ${cyanFocusRingClass} ${className}`}
       >
         ?
       </button>
       <span
         id={tooltipId}
         role="tooltip"
-        className={`pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 w-56 -translate-x-1/2 rounded-md border border-slate-700 bg-slate-950 px-2 py-1 text-left text-[11px] font-normal leading-snug normal-case tracking-normal text-slate-100 shadow-lg transition-opacity duration-100 ${
+        className={`pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 w-56 -translate-x-1/2 rounded-md bg-slate-950 px-2 py-1 text-left text-[11px] font-normal leading-snug normal-case tracking-normal text-slate-100 shadow-lg ring-1 ring-white/16 transition-opacity duration-100 ${
           isOpen ? 'opacity-100' : 'opacity-0'
         }`}
       >

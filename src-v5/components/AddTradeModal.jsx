@@ -62,7 +62,7 @@ function AddTradeModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="add-trade-title"
-        className="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-2xl"
+        className="w-full max-w-md rounded-2xl bg-slate-900 p-6 shadow-2xl ring-1 ring-white/12"
       >
         <h2 id="add-trade-title" className="text-center text-2xl font-semibold text-white">
           {title}
@@ -160,7 +160,7 @@ function AddTradeModal({
             </label>
           </div>
 
-          <p className="text-xs text-slate-400">{sellHelperText}</p>
+          <p className="text-xs text-slate-300">{sellHelperText}</p>
 
           {formError ? (
             <p id={formErrorId} className="rounded-lg border border-rose-500/40 bg-rose-900/20 px-3 py-2 text-sm text-rose-200">
